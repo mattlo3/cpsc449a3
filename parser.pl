@@ -1,64 +1,70 @@
-%parser file 
+% parser file 
+:- dynamic(input/1).
+:- dynamic(inputNoEmpty/1).
 
-% from: https://www.newthinktank.com/2015/08/learn-prolog-one-video/ 
-% Write to a file by defining the file, text to write, connection
- 
-% to the file (Stream)
- 
-write_to_file(File, Text) :-
-  open(File, write, Stream),
-  write(Stream, Text), nl,
-  close(Stream).
- 
-% Read from a file
- 
-read_file(File) :-
-        open(File, read, Stream),
- 
-        % Get char from the stream
-        get_char(Stream, Char1),
- 
-        % Outputs the characters until end_of_file
-        process_stream(Char1, Stream),
-        close(Stream).
- 
-% Continue getting characters until end_of_file
- 
-% ! or cut is used to end backtracking or this execution
- 
-process_stream(end_of_file, _) :- !.
- 
-process_stream(Char, Stream) :-
-        write(Char),
-        get_char(Stream, Char2),
-        process_stream(Char2, Stream).
+% lists and functions for machines and tasks
+tasks(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']).
+machines([1, 2, 3, 4, 5, 6, 7, 8]).
 
+isTask(X) :-
+        tasks(L), member(X,L).
 
-% from: https://stackoverflow.com/questions/16086203/how-to-read-from-file-using-see-and-putting-the-content-into-a-list-in-prolog
-readFile(InputFile, TextList):- open(InputFile, read, Stream),
-                                readCharacter(Stream, TextList),
-                                close(Stream),
-                                name(Word, TextList),
-                                TextList is Word, nl, 
-                                !.
+isMachine(X) :-
+        machines(L), member(X,L).
 
-readCharacter(Stream,[]):- at_end_of_stream(Stream).    %condizione di uscita
+% variables and functions for label comparison
+nameLabel('Name:').
+fpaLabel('forced partial assignment:').
+fmLabel('forbidden machine:').
+tntLabel('too-near tasks:').
+mpLabel('machine penalties:').
+tnpLabel('too-near penalities').
+ 
+isNameLabel(X) :-
+        nameLabel(L), X == L.
+isFpaLabel(X) :-
+        fpaLabel(L), X == L.
+isFmLabel(X) :-
+        fmLabel(L), X == L.
+isTntLabel(X) :-
+        tntLabel(L), X == L.
+isMpLabel(X) :-
+        mpLabel(L), X == L.
+isTnpLabel(X) :-
+        tnpLabel(L), X == L.
+ 
+% read file and save lines to a list
+% https://stackoverflow.com/questions/49443708/how-to-read-a-file-creating-a-list
+my_representation(Codes, Result) :-
+    atom_codes(Result, Codes).
 
+stream_representations(Input, Lines) :-
+    read_line_to_codes(Input, Line),
+    (   Line == end_of_file
+    ->  Lines = []
+    ;   my_representation(Line, FinalLine),
+        Lines = [FinalLine | FurtherLines],
+        stream_representations(Input, FurtherLines) ).
 
-readCharacter(Stream,[Char|Rest]):-
-                                 get0(Stream,Char),
-                                 readCharacter(Stream,Rest).
+readMyFile(File, Flines) :-
+    open(File, read, Input),
+    stream_representations(Input, Lines),
+    close(Input),
+    Flines = Lines.
+    
 
-% from: https://stackoverflow.com/questions/4805601/read-a-file-line-by-line-in-prolog
-read_by_line :-
-    open('examples1/garbage.txt', read, Str),
-    read_file(Str, Lines),
-    close(Str),
-    write(Lines), nl.
+% remove extra lines
+% https://stackoverflow.com/questions/12175377/deleting-all-occurrences-of-an-element-from-a-list
+delMember(_, [], []).
+delMember(X, [X|Xs], Y) :-
+    delMember(X, Xs, Y).
+delMember(X, [T|Xs], [T|Y]) :-
+    dif(X, T),
+    delMember(X, Xs, Y).
 
-read_file(Stream,[]) :- at_end_of_stream(Stream).
+delTrailSpace().
 
-read_file(Stream,[X|L]) :-
-    \+ at_end_of_stream(Stream),
-    read(Stream,X),
-    read_file(Stream,L).
+mainParse(File, Parsed) :-
+    readMyFile(File, Flines),
+    delMember('', Flines, Nlines),
+    Parsed = Nlines.
