@@ -62,9 +62,56 @@ delMember(X, [T|Xs], [T|Y]) :-
     dif(X, T),
     delMember(X, Xs, Y).
 
-delTrailSpace().
+% is last element
+isLast(X, [X]).
+isLast(X, [_|Z]) :-
+        isLast(X, Z).
+
+% remove last element
+% https://stackoverflow.com/questions/16174681/how-to-delete-the-last-element-from-a-list-in-prolog
+list_butlast([X|Xs], Ys) :-                 % use auxiliary predicate ...
+   list_butlast_prev(Xs, Ys, X).            % ... which lags behind by one item
+
+list_butlast_prev([], [], _).
+list_butlast_prev([X1|Xs], [X0|Ys], X0) :-  
+        list_butlast_prev(Xs, Ys, X1). 
+
+
+% append lists
+% https://stackoverflow.com/questions/11539203/how-do-i-append-lists-in-prolog
+append( [], X, X).                                   % (* your 2nd line *)
+append( [X | Y], Z, [X | W]) :- append( Y, Z, W).
+
+% append an element
+appendElem(List, X, Y) :-
+        append(List, [X], Y).
+
+
+% remove trailing spaces
+delTrailingSpaces([], Y, Y).
+delTrailingSpaces([X|Xs], Y, Result) :-
+        atom_chars(X, Chars),
+        delTrailingSpaces2(Chars, NewChars),    % recursive function call
+        atom_chars(Word, NewChars),
+        appendElem(Y, Word, Z),
+        delTrailingSpaces(Xs, Z, Result).
+
+% recursive function for removing trailing spaces from each element
+delTrailingSpaces2(X, Y) :-
+        isLast(' ', X), 
+        list_butlast(X, Z),
+        delTrailingSpaces2(Z, Y).
+delTrailingSpaces2(X, Y) :- 
+        \+ isLast(' ', X),
+        Y = X.
+
+
+
+
+
 
 mainParse(File, Parsed) :-
     readMyFile(File, Flines),
-    delMember('', Flines, Nlines),
+    delTrailingSpaces(Flines, [], Flines2),
+    delMember('', Flines2, Nlines),
     Parsed = Nlines.
