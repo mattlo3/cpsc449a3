@@ -365,14 +365,12 @@ parseTNP([X|Xs], State, Out, NOut) :- % current line is TNT label
 
 parseTNP([X|Xs], State, Out, NOut) :- % reading data, correct tasks
         State == 1,
-        last(B, [X|Xs]),
-        \+ (X == B),
-      %  \+ last(X, [X|Xs]),
+        \+ isLast(X, [Xs]),
         atom_chars(X, Chars),
         nth0(1, Chars, Task1),
         nth0(3, Chars, Task2),
         nth0(5, Chars, Pen),
-        number_string(Num1, Pen),
+        number_string(Num1, [Pen]),
         isTask(Task1),        
         isTask(Task2),
         Num1 >= 0,
@@ -380,34 +378,64 @@ parseTNP([X|Xs], State, Out, NOut) :- % reading data, correct tasks
         appendElem(Out, Pair, NewOut),
         parseTNP(Xs, State, NewOut, NOut).
         
-parseTNP([X|_], State, Out, NOut) :- % wrong task
+parseTNP([X|_], State, Out, NOut) :- % pen is not a number
         State == 1,
-        last(B, [X|Xs]),
-        \+ (X == B),
+        \+ isLast(X, [Xs]),
         atom_chars(X, Chars),
         nth0(1, Chars, Task1),
         nth0(3, Chars, Task2),
         nth0(5, Chars, Pen),
-        number_string(Num1, Pen),
+        \+ number_string(Num1, [Pen]),
+        appendElem(Out, '0Z', NewOut),
+        NOut = NewOut.
+
+
+
+parseTNP([X|_], State, Out, NOut) :- % pen is negative or invalid task
+        State == 1,
+        \+ isLast(X, [Xs]),
+        atom_chars(X, Chars),
+        nth0(1, Chars, Task1),
+        nth0(3, Chars, Task2),
+        nth0(5, Chars, Pen),
+        number_string(Num1, [Pen]),
         ((\+ isTask(Task1)) ; (\+ isTask(Task2)) ;  (\+ Num1 >= 0)),
         appendElem(Out, '0Z', NewOut),
         NOut = NewOut.
 
-parseTNP([X|_], _, Out, NOut) :- % at MP label
-        NOut = Out,
-        %last(X,[X|_]).
-        last(B, [X|Xs]),
-        X == B.
+
+       
+
+parseTNP(X, _, Out, NOut) :- % at end of file
+        length(X,Length),
+        Length == 0,
+        NOut = Out.
 
 
-%--------------------------------------------------------
 
 
-%check if it is the last element of the list
-last(X,[X]).
- last(X,[_|Z]) :- last(X,Z).
+%---------------error handling--------------------------------------------------------
 
 
+
+
+
+
+
+
+
+
+
+       % parseName(Nlines, 0),
+       % parseFPA(Nlines, 0, FPADown, FPAUp),
+    %    parseFM(Nlines, 0, FMDown, FMUp),
+    %    parseTNT(Nlines, 0, TNTDown, TNTUp),
+    %    parseMP(Nlines, 0, MPDown, MPUp),
+  %      parseTNP(Nlines, 0, TNPDown, TNPUp),
+
+
+
+        
 
 
 
@@ -415,19 +443,49 @@ last(X,[X]).
 % --------------------------------------------------------------------------
 % MAIN PARSE FUNCTION
 % --------------------------------------------------------------------------
-mainParse(File, Parsed) :-
-    readMyFile(File, Flines),
-    delTrailingSpaces(Flines, [], Flines2),
-    delMember('', Flines2, Nlines),
-%     correctOrder(Nlines, 0),
-%     parseName(Nlines, 0),
-  %   parseFPA(Nlines, 0, FPADown, FPAUp),
-%    parseFM(Nlines, 0, FMDown, FMUp),
-%     parseTNT(Nlines, 0, TNTDown, TNTUp),
-  %  parseMP(Nlines, 0, MPDown, MPUp),
-   parseTNP(Nlines, 0, TNPDown, TNPUp),
-   
-    Parsed = TNPUp.
+
+mainParse(File, Parsed) :- % if not correct order
+        readMyFile(File, Flines),
+        delTrailingSpaces(Flines, [], Flines2),
+        delMember('', Flines2, Nlines),
+        \+ correctOrder(Nlines, 0),
+        Parsed = 0.
+
+mainParse(File, Parsed) :- % if not correct name
+        readMyFile(File, Flines),
+        delTrailingSpaces(Flines, [], Flines2),
+        delMember('', Flines2, Nlines),
+        \+ parseName(Nlines, 0),
+        Parsed = 0.
+
+
+mainParse(File, Parsed) :- % FPA, wrong machine/task
+        readMyFile(File, Flines),
+        delTrailingSpaces(Flines, [], Flines2),
+        delMember('', Flines2, Nlines),
+        parseFPA(Nlines, 0, FPADown, FPAUp),
+        member('0Z', FPAUp),
+        Parsed = -1.
 
 
 
+
+
+
+
+
+%mainParse(File, Parsed) :- % FPA, wrong machine/task
+     %   readMyFile(File, Flines),
+     %   delTrailingSpaces(Flines, [], Flines2),
+    %    delMember('', Flines2, Nlines),
+    %    parseTNP(Nlines, 0, TNPDown, TNPUp),
+    %    member('0Z', TNPUp),
+   %     Parsed = -4.
+
+
+mainParse(File, Parsed) :- 
+        readMyFile(File, Flines),
+        delTrailingSpaces(Flines, [], Flines2),
+        delMember('', Flines2, Nlines), 
+        parseTNP(Nlines, 0, TNPDown, TNPUp),
+        Parsed = TNPUp.
