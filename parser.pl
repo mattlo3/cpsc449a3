@@ -341,6 +341,77 @@ parseMP([X|_], State, Out, NOut) :- % TNP label
         NOut = Out.
 
 
+
+
+
+
+
+
+
+
+
+
+%TNP-----------------------------------------------------------------------
+parseTNP([X|Xs], State, Out, NOut) :- % reading file until we reach TNT label
+        State == 0,        
+        \+ isTnpLabel(X),
+        parseTNP(Xs, 0, Out, NOut).
+
+parseTNP([X|Xs], State, Out, NOut) :- % current line is TNT label
+        State == 0,
+        Out = [],
+        isTnpLabel(X),
+        parseTNP(Xs, 1, Out, NOut).
+
+parseTNP([X|Xs], State, Out, NOut) :- % reading data, correct tasks
+        State == 1,
+        last(B, [X|Xs]),
+        \+ (X == B),
+      %  \+ last(X, [X|Xs]),
+        atom_chars(X, Chars),
+        nth0(1, Chars, Task1),
+        nth0(3, Chars, Task2),
+        nth0(5, Chars, Pen),
+        number_string(Num1, Pen),
+        isTask(Task1),        
+        isTask(Task2),
+        Num1 >= 0,
+        atom_chars(Pair, [Task1, Task2, Pen]),
+        appendElem(Out, Pair, NewOut),
+        parseTNP(Xs, State, NewOut, NOut).
+        
+parseTNP([X|_], State, Out, NOut) :- % wrong task
+        State == 1,
+        last(B, [X|Xs]),
+        \+ (X == B),
+        atom_chars(X, Chars),
+        nth0(1, Chars, Task1),
+        nth0(3, Chars, Task2),
+        nth0(5, Chars, Pen),
+        number_string(Num1, Pen),
+        ((\+ isTask(Task1)) ; (\+ isTask(Task2)) ;  (\+ Num1 >= 0)),
+        appendElem(Out, '0Z', NewOut),
+        NOut = NewOut.
+
+parseTNP([X|_], _, Out, NOut) :- % at MP label
+        NOut = Out,
+        %last(X,[X|_]).
+        last(B, [X|Xs]),
+        X == B.
+
+
+%--------------------------------------------------------
+
+
+%check if it is the last element of the list
+last(X,[X]).
+ last(X,[_|Z]) :- last(X,Z).
+
+
+
+
+
+
 % --------------------------------------------------------------------------
 % MAIN PARSE FUNCTION
 % --------------------------------------------------------------------------
@@ -350,8 +421,13 @@ mainParse(File, Parsed) :-
     delMember('', Flines2, Nlines),
 %     correctOrder(Nlines, 0),
 %     parseName(Nlines, 0),
-%     parseFPA(Nlines, 0, FPADown, FPAUp),
-%     parseFM(Nlines, 0, FMDown, FMUp),
+  %   parseFPA(Nlines, 0, FPADown, FPAUp),
+%    parseFM(Nlines, 0, FMDown, FMUp),
 %     parseTNT(Nlines, 0, TNTDown, TNTUp),
-    parseMP(Nlines, 0, MPDown, MPUp),
-    Parsed = MPUp.
+  %  parseMP(Nlines, 0, MPDown, MPUp),
+   parseTNP(Nlines, 0, TNPDown, TNPUp),
+   
+    Parsed = TNPUp.
+
+
+
