@@ -1,7 +1,1 @@
-
-too-near penalities
-(E,G,3)
-(G,H,1)
-(F,F,7)
-(H,G,9)
-(F,G,0)
+Error while parsing input file
