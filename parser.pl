@@ -553,3 +553,15 @@ mainParse(File, Parsed) :- % no errors, valid parse
         delTrailingSpaces(Flines, [], Flines2),
         delMember('', Flines2, _),
         Parsed = 1.
+
+
+testParse(File, Parsed) :-
+        readMyFile(File, Flines),
+        delTrailingSpaces(Flines, [], Flines2),
+        delMember('', Flines2, Nlines),
+        parseFPA(Nlines, 0, _, X),
+        parseFM(Nlines, 0, _, X2),
+        parseTNT(Nlines, 0, _, X3),
+        parseMP(Nlines, 0, _, X4),
+        parseTNP(Nlines, 0, _, X5),
+        Parsed = [X, X2, X3, X4, X5].

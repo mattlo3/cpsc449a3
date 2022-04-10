@@ -18,7 +18,7 @@ tooNear(X,Y) :-
 forcedPartial(_, Y, R) :- % not defined
     length(Y, Length),
     Length == 0,
-    R = true.
+    R = 1.
 
 forcedPartial(X,[Y|_], R) :- % in FPA
     atom_chars(X, Pair),
@@ -29,7 +29,7 @@ forcedPartial(X,[Y|_], R) :- % in FPA
     nth0(1, CPair, Task2), 
     Mach1 == Mach2, 
     Task1 == Task2,
-    R = true.
+    R = 1.
 
 forcedPartial(X,[Y|_], R) :- % in FPA
     atom_chars(X, Pair),
@@ -39,7 +39,7 @@ forcedPartial(X,[Y|_], R) :- % in FPA
     nth0(1, Pair, Task1), 
     nth0(1, CPair, Task2), 
     (\+ Mach1 == Mach2 , Task1 == Task2),
-    R = false.
+    R = 0.
    
     
 forcedPartial(X,[Y|_], R) :- % in FPA
@@ -50,7 +50,7 @@ forcedPartial(X,[Y|_], R) :- % in FPA
     nth0(1, Pair, Task1), 
     nth0(1, CPair, Task2), 
     (Mach1 == Mach2 , \+ Task1 == Task2),
-    R = false.
+    R = 0.
 
 forcedPartial(X,[_|Ys], R) :- % in FPA
     forcedPartial(X, Ys, R).
@@ -58,15 +58,18 @@ forcedPartial(X,[_|Ys], R) :- % in FPA
 % Soft Constraints
 % --------------------------
 % MP -----------------------
-machPen(M, T, C, P) :-
-    number_string(Mi, [M]),
-    taskToInt(T, Ti),
+machPen(X, C, P) :-
+    atom_chars(X, Pair),
+    nth0(0, Pair, Mach),
+    nth0(1, Pair, Task),
+    number_string(Mi, [Mach]),
+    taskToInt(Task, Ti),
     nth1(Mi, C, Row),
     nth1(Ti, Row, P).
     
 % TNP -----------------------
 tooNearPen(T1, T2, [C|_], P) :-
-    atom_chars(C, Chars),
+    atom_chars(C, Chars), %Chars = ['A', 'B', '6']
     member([T1, T2, _], [Chars]),
     nth0(2, Chars, Pen),
     number_string(P, [Pen]).

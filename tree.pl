@@ -75,71 +75,104 @@ makeTree3(Aids, Prev, Curr, [T|Tx], Ans) :-
     makeTree3(Aids, Prev, Curr, Tx, Ans).
 
 
-makeTree3(Aids, Prev, Curr, [T|Tx], Ans) :-
+% makeTree3(Aids, Prev, Curr, [T|Tx], Ans) :-
     
-
+%[[],[],['11111111','11111111'],[],[]]
 minBound(X) :-
     X = -123456789.
 
 % do all constraint tests
-doTests(Path, Cnst, Pen) :-
+
+% line 43 MTree.hs
+doTests(Path, Cnst, Pen) :- %
     length(Path, M),
     nth1(M, Path, T),
-    M == 1,
+    number_string(M, M2),   % M2 is string
+    atom_chars(M2, Chars),  
+    nth0(0, Chars, M3),     % M3 is Char
+    atom_concat(M3, T, MT),  % MT = (machine, task) pair
     nth0(0, Cnst, FPA),
-    nth0(0, Cnst, FM),
-    forcedPartial([M, T], FPA),
-    \+ forbidden([M, T], FM),
-    
+    forcedPartial(MT, FPA, Bool),
+    Bool == 0,
+    minBound(Pen).
 
-    
+% line 44 MTree.hs
 doTests(Path, Cnst, Pen) :-
     length(Path, M),
     nth1(M, Path, T),
-    % M >=2.
-    % FM, FPA, TNT
+    number_string(M, M2),   % M2 is string
+    atom_chars(M2, Chars),  
+    nth0(0, Chars, M3),     % M3 is Char
+    atom_concat(M3, T, MT),  % MT = (machine, task) pair
+    nth0(1, Cnst, FM),
+    forbidden(MT, FM),
+    minBound(Pen).
+    
+% line 45 MTree.hs
+doTests(Path, Cnst, Pen) :-
+    length(Path, M),
+    nth1(M, Path, T),
+    M == 1,                 % M is int
+    number_string(M, M2),   % M2 is string
+    atom_chars(M2, Chars),  
+    nth0(0, Chars, M3),     % M3 is Char
+    atom_concat(M3, T, MT),  % MT = (machine, task) pair
+    nth0(3, Cnst, MP),
+    machPen(MT, MP, Pen).
 
-    % M == 1
-    % FM, FPA,
+% line 46 MTree.hs
+doTests(Path, Cnst, Pen) :- 
+    length(Path, M),
+    nth1(1, Path, F),
+    nth1(M, Path, L),
+    M == 8,
+    atom_concat(L, F, TT),
+    nth0(2, Cnst, TNT),
+    tooNear(TT,TNT),
+    minBound(Pen).
 
-    % M = 0
-    % Pen = 0
+% line 47 MTree.hs
+doTests(Path, Cnst, Pen) :-
+    length(Path, M),
+    SL = M - 1,         % second last index
+    nth1(M, Path, T),   % last task
+    nth1(SL, Path, SLT),% second last task
+    atom_concat(SLT, T, TT),
+    nth0(2, Cnst, TNT),
+    tooNear(TT,TNT),
+    minBound(Pen).
 
+doTests(Path, Cnst, Pen) :-
+    length(Path, M),
+    M == 8,
+    SL = M - 1,         % second last index
+    nth1(M, Path, T),   % last task
+    nth1(SL, Path, SLT),% second last task
+    nth1(1, Path, F),
+    nth0(3, Cnst, MP),
+    nth0(4, Cnst, TNP),
+    atom_concat(M3, T, MT),
+    machPen(MT, MP, P1),
+    tooNearPen(SLT, T, TNP, P2),
+    tooNearPen(T, F, TNP, P3),
+    Pen = P1 + P2 + P3.
 
-
+% line 48 MTree.hs
+doTests(Path, Cnst, Pen) :-
+    length(Path, M),
+    SL = M - 1,         % second last index
+    nth1(M, Path, T),   % last task
+    nth1(SL, Path, SLT),% second last task
+    nth0(3, Cnst, MP),
+    nth0(4, Cnst, TNP),
+    atom_concat(M3, T, MT),
+    machPen(MT, MP, P1),
+    tooNearPen(SLT, T, TNP, P2),
+    Pen = P1 + P2.
+    
 
     
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ 
+testTests(File, Path, Pen) :-
+    
