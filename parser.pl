@@ -553,7 +553,7 @@ mainParse(File, Parsed) :- % no errors, valid parse
         delTrailingSpaces(Flines, [], Flines2),
         delMember('', Flines2, _),
         Parsed = 1.
-        
+
 
 testParse(File, Parsed) :-
         readMyFile(File, Flines),

@@ -47,15 +47,19 @@ makeTree(Input, Output) :-
 makeTree(Input, Output) :-
     mainParse(Input, Res),
     Res == 1,
+<<<<<<< HEAD
     makeTree2(Input, Answer),
     treeToString(Answer, Answer2),
+=======
+    % makeTree2(Input, Answer),
+>>>>>>> parent of 77001a7 (finished makeTree)
     open(Output,write,Stream),
     write(Stream, Answer2),
     close(Stream).
 
 
 % recursive function for creating tree
-makeTree2(Input, Tree) :- % dont forget to revert Tree to Answ
+makeTree2(Input, Answer) :-
     readMyFile(Input, Flines),
     delTrailingSpaces(Flines, [], Flines2),
     delMember('', Flines2, Nlines),
@@ -65,6 +69,7 @@ makeTree2(Input, Tree) :- % dont forget to revert Tree to Answ
     parseMP(Nlines, 0, _, MP),
     parseTNP(Nlines, 0, _, TNP),
     tasks(Tasks),
+<<<<<<< HEAD
     maxBound(Max),
     makeTree3([FPA, FM, TNT, MP, TNP], [[], Max], [[], 0], Tasks, Tree).
 
@@ -83,43 +88,20 @@ makeTree3(_, Prev, Curr, T, Ans) :-
 % line 33 MTree.hs, checking if task already in use
 makeTree3(Aids, Prev, Curr, [T|Ts], Ans) :-
     write(Prev), write("    "), write(Curr), write("    "), write([T|Ts]), write("\n"), 
+=======
+    makeTree3([FPA, FM, TNT, MP, TNP], 0, Score, [], Tree, Tasks),
+    treeToString(Tree, Score, Answer). % answer = Solution H G F E D C B A; Quality: 800
+    
+% param: ([constraint lists], [[prev tree], prev score], [[curr tree], curr score], [remaining tasks], return)   
+% if current task is already used, test next task
+makeTree3(Aids, Prev, Curr, [T|Tx], Ans) :-
+>>>>>>> parent of 77001a7 (finished makeTree)
     nth0(0, Curr, CPath),
     member(T, CPath),
-    makeTree3(Aids, Prev, Curr, Ts, Ans).
+    makeTree3(Aids, Prev, Curr, Tx, Ans).
 
-% line 34 MTree.hs, checking hard constraints
-makeTree3(Aids, Prev, Curr, [T|Ts], Ans) :-
-    nth0(0, Curr, CPath),
-    nth0(1, Curr, _),
-    appendElem(CPath, T, CPath2),
-    doTests(CPath2, Aids, Pen),
-    Pen < 0,
-    makeTree3(Aids, Prev, Curr, Ts, Ans).
-    
-% line 35 MTree.hs
-makeTree3(Aids, Prev, Curr, [T|_], Ans) :-
-    nth0(0, Curr, CPath),
-    nth0(1, Curr, CScore),
-    nth0(1, Prev, PScore),
-    appendElem(CPath, T, CPath2),
-    doTests(CPath2, Aids, Pen),
-    Pen2 is Pen + CScore,
-    Pen2 > PScore,
-    Ans = Prev.
 
-% line 36 MTree.hs
-makeTree3(Aids, Prev, Curr, [T|_], Ans) :-
-    nth0(0, Curr, CPath),
-    nth0(1, Curr, CScore),
-    nth0(1, Prev, PScore),
-    appendElem(CPath, T, CPath2),
-    doTests(CPath2, Aids, Pen),
-    length(CPath2, Length),
-    Length >= 8,
-    Pen2 is Pen + CScore,
-    Pen2 < PScore,
-    Ans = [CPath2, Pen2].
-
+<<<<<<< HEAD
 % line 37 MTree.hs
 makeTree3(Aids, Prev, Curr, [T|_], Ans) :-
     nth0(0, Curr, CPath),
@@ -177,12 +159,13 @@ makeTree3(Aids, Prev, Curr, [T|Ts], Ans) :-
     AScore >= PScore,
     makeTree3(Aids, Prev, Curr, Ts, Ans).
     %= makeTree2 aids prev curr xs
+=======
+% makeTree3(Aids, Prev, Curr, [T|Tx], Ans) :-
+>>>>>>> parent of 77001a7 (finished makeTree)
     
+%[[],[],['11111111','11111111'],[],[]]
 minBound(X) :-
     X = -123456789.
-
-maxBound(X) :-
-    X = 123456789.
 
 % do all constraint tests
 
@@ -237,7 +220,7 @@ doTests(Path, Cnst, Pen) :-
 % line 47 MTree.hs
 doTests(Path, Cnst, Pen) :-
     length(Path, M),
-    SL is M - 1,         % second last index
+    SL = M - 1,         % second last index
     nth1(M, Path, T),   % last task
     nth1(SL, Path, SLT),% second last task
     atom_concat(SLT, T, TT),
@@ -248,37 +231,42 @@ doTests(Path, Cnst, Pen) :-
 doTests(Path, Cnst, Pen) :-
     length(Path, M),
     M == 8,
-    SL is M - 1,         % second last index
+    SL = M - 1,         % second last index
     nth1(M, Path, T),   % last task
     nth1(SL, Path, SLT),% second last task
     nth1(1, Path, F),
     nth0(3, Cnst, MP),
     nth0(4, Cnst, TNP),
-    atom_concat(M, T, MT),
+    atom_concat(M3, T, MT),
     machPen(MT, MP, P1),
     tooNearPen(SLT, T, TNP, P2),
     tooNearPen(T, F, TNP, P3),
-    Pen is P1 + P2 + P3.
+    Pen = P1 + P2 + P3.
 
 % line 48 MTree.hs
 doTests(Path, Cnst, Pen) :-
     length(Path, M),
-    SL is M - 1,         % second last index
+    SL = M - 1,         % second last index
     nth1(M, Path, T),   % last task
     nth1(SL, Path, SLT),% second last task
     nth0(3, Cnst, MP),
     nth0(4, Cnst, TNP),
-    atom_concat(M, T, MT),
+    atom_concat(M3, T, MT),
     machPen(MT, MP, P1),
     tooNearPen(SLT, T, TNP, P2),
-    Pen is P1 + P2.
+    Pen = P1 + P2.
     
+
+    
+<<<<<<< HEAD
 % Tree to string
 treeToString(Input, Output) :- 
     nth0(0, Input, CPath),
     nth0(1, Input, CScore),
     CScore < 0,
     Output = 'No valid solution possible!'.
+=======
+>>>>>>> parent of 77001a7 (finished makeTree)
 
 treeToString(Input, Output) :- 
     nth0(0, Input, CPath),
@@ -312,6 +300,7 @@ treeToString(Input, Output) :-
     Output = S17.
  
 testTests(File, Path, Pen) :-
+<<<<<<< HEAD
     readMyFile(File, Flines),
     delTrailingSpaces(Flines, [], Flines2),
     delMember('', Flines2, Nlines),
@@ -322,3 +311,6 @@ testTests(File, Path, Pen) :-
     parseTNP(Nlines, 0, _, X5),
     doTests(Path, [X, X2, X3, X4, X5], Pen).
 
+=======
+    
+>>>>>>> parent of 77001a7 (finished makeTree)
