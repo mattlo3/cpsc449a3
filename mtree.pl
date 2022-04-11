@@ -94,6 +94,7 @@ makeTree3(Cnst, Prev, Curr, [T|Ts], Ans) :-
     appendElem(CPath, T, NCurr),
     length(NCurr, LenNCurr),
     LenNCurr == 8,
+    write(NCurr), write("\n"),
     doTests(NCurr, Cnst, Pen),
     nth0(1, Prev, PScore),
     Pen2 is Pen + CScore,
@@ -123,14 +124,13 @@ makeTree3(Cnst, Prev, Curr, [T|Ts], Ans) :-
     appendElem(CPath, T, NCurr),
     length(NCurr, LenNCurr),
     LenNCurr < 8,
-    write(CPath), write("   "), write(LenNCurr), write("    "), write(T), write("\n"),
     doTests(NCurr, Cnst, Pen),
     nth0(1, Prev, PScore),
     Pen2 is Pen + CScore,
     Pen2 >= 0,
     Pen2 < PScore,
     tasks(Tasks),
-    makeTree3(Cnst, Prev, [NCurr, Pen2], Task, Ans1),
+    makeTree3(Cnst, Prev, [NCurr, Pen2], Tasks, Ans1),
     nth0(1, Ans1, AScore),
     AScore >= 0,
     AScore < PScore,
@@ -149,7 +149,7 @@ makeTree3(Cnst, Prev, Curr, [T|Ts], Ans) :-
     Pen2 >= 0,
     Pen2 < PScore,
     tasks(Tasks),
-    makeTree3(Cnst, Prev, [NCurr, Pen2], Task, Ans1),
+    makeTree3(Cnst, Prev, [NCurr, Pen2], Tasks, Ans1),
     nth0(1, Ans1, AScore),
     (AScore < 0 ; AScore > PScore),
     makeTree3(Cnst, Prev, Curr, Ts, Ans).
@@ -158,19 +158,16 @@ makeTree3(Cnst, Prev, Curr, [T|Ts], Ans) :-
 % general doTests
 doTests(Path, Cnst, Pen) :-         % path is size 1
     length(Path, LenPath),
-    write(LenPath), write("\n"),
     LenPath == 1,
     doTests1(Path, Cnst, Pen).    
 
 doTests(Path, Cnst, Pen) :-         % if path is full
     length(Path, LenPath),
-    write(LenPath), write("\n"),
     LenPath == 8,
     doTests8(Path, Cnst, Pen).
 
 doTests(Path, Cnst, Pen) :-         % if path is not full and not 1 
     length(Path, LenPath),
-    write(LenPath), write("\n"),
     LenPath > 1,
     LenPath < 8,
     doTestsN(Path, Cnst, Pen).
@@ -242,7 +239,6 @@ doTestsN(Path, Cnst, Pen) :-
     nth0(1, Cnst, FM),
     nth0(2, Cnst, TNT),
     length(Path, LM),               % LM = last machine
-    write(Path), write("\n"),
     SLM is LM - 1,                  % SLM = second last machine
     nth1(LM, Path, LT),             % LT = last task
     nth1(SLM, Path, SLT),           % SLT = second last task
