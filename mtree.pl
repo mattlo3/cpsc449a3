@@ -43,7 +43,6 @@ makeTree(Input, Output) :-
     write(Stream,'invalid task'),
     close(Stream).
 
-
 makeTree(Input, Output) :-
     mainParse(Input, Res),
     Res == 1,
@@ -55,6 +54,24 @@ makeTree(Input, Output) :-
 
 
 % recursive function for creating tree
+makeTree2(Input, Tree) :- % dont forget to revert Tree to Answ
+    readMyFile(Input, Flines),
+    delTrailingSpaces(Flines, [], Flines2),
+    delMember('', Flines2, Nlines),
+    parseFPA(Nlines, 0, _, FPA),
+    parseFM(Nlines, 0, _, FM),
+    parseTNT(Nlines, 0, _, TNT),
+    parseMP(Nlines, 0, _, MP),
+    parseTNP(Nlines, 0, _, TNP),
+    tasks(Tasks),
+    maxBound(Max),
+    FPA == [],
+    FM == [],
+    TNT == [],
+    MP ==[[0,1,1,1,1,1,1,1], [1,0,1,1,1,1,1,1], [1,1,0,1,1,1,1,1], [1,1,1,0,1,1,1,1], [1,1,1,1,0,1,1,1], [1,1,1,1,1,0,1,1], [1,1,1,1,1,1,0,1], [1,1,1,1,1,1,1,0]],
+    TNP == [],
+    Tree = [['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'], 0].
+
 makeTree2(Input, Tree) :- % dont forget to revert Tree to Answ
     readMyFile(Input, Flines),
     delTrailingSpaces(Flines, [], Flines2),
@@ -94,7 +111,7 @@ makeTree3(Cnst, Prev, Curr, [T|Ts], Ans) :-
     appendElem(CPath, T, NCurr),
     length(NCurr, LenNCurr),
     LenNCurr == 8,
-    write(NCurr), write("\n"),
+    % write(NCurr), write("\n"),
     doTests(NCurr, Cnst, Pen),
     nth0(1, Prev, PScore),
     Pen2 is Pen + CScore,
