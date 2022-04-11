@@ -99,7 +99,7 @@ makeTree3(Cnst, Prev, Curr, [T|Ts], Ans) :-
     nth0(1, Prev, PScore),
     Pen2 is Pen + CScore,
     Pen2 >= 0,
-    Pen2 < PScore,
+    Pen2 =< PScore, % fixes NOTHING (102), fixes invalidforbidden (102, 136), toonearpen1(131,136,102)
     Ans = [NCurr, Pen2].
 
     % worse than PREV
@@ -113,7 +113,7 @@ makeTree3(Cnst, Prev, Curr, [T|Ts], Ans) :-
     nth0(1, Prev, PScore),
     Pen2 is Pen + CScore,
     Pen2 >= 0,
-    Pen2 > PScore,
+    Pen2 > PScore, % fixes NOTHING (116)
     Ans = Prev.
     
 % length < 8
@@ -128,12 +128,12 @@ makeTree3(Cnst, Prev, Curr, [T|Ts], Ans) :-
     nth0(1, Prev, PScore),
     Pen2 is Pen + CScore,
     Pen2 >= 0,
-    Pen2 < PScore,
+    Pen2 =< PScore, % fixes NOTHING (131), toonearpen1(131,136,102)
     tasks(Tasks),
     makeTree3(Cnst, Prev, [NCurr, Pen2], Tasks, Ans1),
     nth0(1, Ans1, AScore),
     AScore >= 0,
-    AScore < PScore,
+    AScore =< PScore, % fixes invalidtoonear, invalid2, toonearpen2 (136), invalidforbidden(102, 136), toonearpen1(131,136,102)
     makeTree3(Cnst, Ans1, Curr, Ts, Ans).
 
     % worse than PREV
@@ -147,7 +147,7 @@ makeTree3(Cnst, Prev, Curr, [T|Ts], Ans) :-
     nth0(1, Prev, PScore),
     Pen2 is Pen + CScore,
     Pen2 >= 0,
-    Pen2 < PScore,
+    Pen2 =< PScore,  % fixes NOTHING (150)
     tasks(Tasks),
     makeTree3(Cnst, Prev, [NCurr, Pen2], Tasks, Ans1),
     nth0(1, Ans1, AScore),
