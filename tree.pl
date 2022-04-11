@@ -72,111 +72,90 @@ makeTree2(Input, Tree) :- % dont forget to revert Tree to Answ
     
 % param: ([constraint lists], [[prev tree], prev score], [[curr tree], curr score], [remaining tasks], return)   
 
-% line 31 MTree.hs
-makeTree3(_, Prev, Curr, T, Ans) :-
-    length(T, Length),
-    Length == 0,
-    Ans = Prev,
-    write(Prev), write("    "), write(Curr), write("    "), write(T), write("   "), write(Length), write("\n").
+% makeTree3(constraints, prevBest, currPath, tasks, result)
 
-
-% line 33 MTree.hs, checking if task already in use
-makeTree3(Aids, Prev, Curr, [T|Ts], Ans) :-
-    write(Prev), write("    "), write(Curr), write("    "), write([T|Ts]), write("\n"), 
-    nth0(0, Curr, CPath),
-    member(T, CPath),
-    makeTree3(Aids, Prev, Curr, Ts, Ans).
-
-% line 34 MTree.hs, checking hard constraints
-makeTree3(Aids, Prev, Curr, [T|Ts], Ans) :-
-    nth0(0, Curr, CPath),
-    nth0(1, Curr, _),
-    appendElem(CPath, T, CPath2),
-    doTests(CPath2, Aids, Pen),
-    Pen < 0,
-    makeTree3(Aids, Prev, Curr, Ts, Ans).
-    
-% line 35 MTree.hs
-makeTree3(Aids, Prev, Curr, [T|_], Ans) :-
+% Current MT FAILS HC
+makeTree3(Cnst, Prev, Curr, [T|Ts], Ans) :-
     nth0(0, Curr, CPath),
     nth0(1, Curr, CScore),
+    appendElem(CPath, T, NCurr),            % add available task to path
+    doTests(NCurr, Cnst, Pen),
+    (Pen < 0 ; member(T, CPath)),           % if NCurr fails HC or T already in use
+    makeTree3(Cnst, Prev, Curr, Ts, Ans).   % Recurse with old current path, and next available task
+
+% No more available tasks to try
+makeTree3(Cnst, Prev, Curr, T, Ans) :-
+    length(T, LenT),
+    LenT == 0,
+    Ans = Prev.                             % return previous best sub tree
+
+% length = 8
+    % better than PREV
+makeTree3(Cnst, Prev, Curr, [T|Ts], Ans) :-
+    nth0(0, Curr, CPath),
+    nth0(1, Curr, CScore),
+    appendElem(CPath, T, NCurr),
+    length(NCurr, LenNCurr),
+    LenNCurr == 8,
+    doTests(NCurr, Cnst, Pen),
     nth0(1, Prev, PScore),
-    appendElem(CPath, T, CPath2),
-    doTests(CPath2, Aids, Pen),
     Pen2 is Pen + CScore,
+    Pen2 >= 0,
+    Pen2 < PScore,
+    Ans = [NCurr, Pen2].
+
+    % worse than PREV
+makeTree3(Cnst, Prev, Curr, [T|Ts], Ans) :-
+    nth0(0, Curr, CPath),
+    nth0(1, Curr, CScore),
+    appendElem(CPath, T, NCurr),
+    length(NCurr, LenNCurr),
+    LenNCurr == 8,
+    doTests(NCurr, Cnst, Pen),
+    nth0(1, Prev, PScore),
+    Pen2 is Pen + CScore,
+    Pen2 >= 0,
     Pen2 > PScore,
     Ans = Prev.
-
-% line 36 MTree.hs
-makeTree3(Aids, Prev, Curr, [T|_], Ans) :-
+    
+% length < 8
+    % better than PREV
+makeTree3(Cnst, Prev, Curr, [T|Ts], Ans) :-
     nth0(0, Curr, CPath),
     nth0(1, Curr, CScore),
+    appendElem(CPath, T, NCurr),
+    length(NCurr, LenNCurr),
+    LenNCurr < 8,
+    write(CPath), write("   "), write(LenNCurr), write("    "), write(T), write("\n"),
+    doTests(NCurr, Cnst, Pen),
     nth0(1, Prev, PScore),
-    appendElem(CPath, T, CPath2),
-    doTests(CPath2, Aids, Pen),
-    length(CPath2, Length),
-    Length >= 8,
     Pen2 is Pen + CScore,
+    Pen2 >= 0,
     Pen2 < PScore,
-    Ans = [CPath2, Pen2].
-
-% line 37 MTree.hs
-makeTree3(Aids, Prev, Curr, [T|_], Ans) :-
-    nth0(0, Curr, CPath),
-    nth0(1, Curr, CScore),
-    nth0(1, Prev, PScore),
-    appendElem(CPath, T, CPath2),
-    doTests(CPath2, Aids, Pen),
-    length(CPath2, Length),
-    Length >= 8,
-    Pen2 is Pen + CScore,
-    Pen2 >= PScore,
-    Ans = Prev.
-
-% line 38 MTree.hs
-makeTree3(Aids, Prev, Curr, [T|Ts], Ans) :-
-    nth0(0, Curr, CPath),
-    nth0(1, Curr, CScore),
-    nth0(1, Prev, PScore),
-    appendElem(CPath, T, CPath2),
-    doTests(CPath2, Aids, Pen),
-    Pen2 is Pen + CScore,
     tasks(Tasks),
-    makeTree3(Aids, Prev, [CPath2, Pen2], Tasks, Ans1),
+    makeTree3(Cnst, Prev, [NCurr, Pen2], Task, Ans1),
     nth0(1, Ans1, AScore),
+    AScore >= 0,
     AScore < PScore,
-    AScore > 0,
-    makeTree3(Aids, Ans1, Curr, Ts, Ans).
+    makeTree3(Cnst, Ans1, Curr, Ts, Ans).
 
-makeTree3(Aids, Prev, Curr, [T|Ts], Ans) :-
+    % worse than PREV
+makeTree3(Cnst, Prev, Curr, [T|Ts], Ans) :-
     nth0(0, Curr, CPath),
     nth0(1, Curr, CScore),
+    appendElem(CPath, T, NCurr),
+    length(NCurr, LenNCurr),
+    LenNCurr < 8,
+    doTests(NCurr, Cnst, Pen),
     nth0(1, Prev, PScore),
-    appendElem(CPath, T, CPath2),
-    doTests(CPath2, Aids, Pen),
     Pen2 is Pen + CScore,
+    Pen2 >= 0,
+    Pen2 < PScore,
     tasks(Tasks),
-    makeTree3(Aids, Prev, [CPath2, Pen2], Tasks, Ans1),
+    makeTree3(Cnst, Prev, [NCurr, Pen2], Task, Ans1),
     nth0(1, Ans1, AScore),
-    AScore < PScore,
-    AScore < 0,
-    makeTree3(Aids, Prev, Curr, Ts, Ans).
-
-% line 39 MTree.hs
-makeTree3(Aids, Prev, Curr, [T|Ts], Ans) :-
-    %snd (makeTree2 aids prev (((fst curr)++[x]), ((snd curr) + doTests ((fst curr)++[x]) aids)) tasks) >= (snd prev) 
-    nth0(0, Curr, CPath),
-    nth0(1, Curr, CScore),
-    nth0(1, Prev, PScore),
-    appendElem(CPath, T, CPath2),
-    doTests(CPath2, Aids, Pen),
-    Pen2 is Pen + CScore,
-    tasks(Tasks),
-    makeTree3(Aids, Prev, [CPath2, Pen2], Tasks, Ans1),
-    nth0(1, Ans1, AScore),
-    AScore >= PScore,
-    makeTree3(Aids, Prev, Curr, Ts, Ans).
-    %= makeTree2 aids prev curr xs
+    (AScore < 0 ; AScore > PScore),
+    makeTree3(Cnst, Prev, Curr, Ts, Ans).
     
 minBound(X) :-
     X = -123456789.
