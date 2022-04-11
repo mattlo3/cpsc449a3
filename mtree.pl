@@ -286,7 +286,7 @@ maxBound(X) :-
 treeToString(Input, Output) :- 
     nth0(0, Input, CPath),
     nth0(1, Input, CScore),
-    CScore < 0,
+    (CScore < 0 ; \+ noDupe(CPath)),
     Output = 'No valid solution possible!'.
 
 treeToString(Input, Output) :- 
@@ -330,3 +330,8 @@ testTests(File, Path, Pen) :-
     parseMP(Nlines, 0, _, X4),
     parseTNP(Nlines, 0, _, X5),
     doTests(Path, [X, X2, X3, X4, X5], Pen). 
+
+noDupe(Lst) :-
+    sort(Lst, Set),
+    length(Lst, N),
+    length(Set, N).

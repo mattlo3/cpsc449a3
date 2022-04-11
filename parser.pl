@@ -91,7 +91,8 @@ appendElem(List, X, Y) :-
 delTrailingSpaces([], Y, Y).
 delTrailingSpaces([X|Xs], Y, Result) :-
         atom_chars(X, Chars),
-        delTrailingSpaces2(Chars, NewChars),    % recursive function call
+        delMember('\r', Chars, Chars2),
+        delTrailingSpaces2(Chars2, NewChars),    % recursive function call
         atom_chars(Word, NewChars),
         appendElem(Y, Word, Z),
         delTrailingSpaces(Xs, Z, Result).
