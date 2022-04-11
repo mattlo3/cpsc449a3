@@ -1,1 +1,1 @@
-[[A,B,C,D,E,H,G,F,E],-123456765]
+Solution A B C D E F H G; Quality: 36

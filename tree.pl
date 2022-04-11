@@ -48,8 +48,9 @@ makeTree(Input, Output) :-
     mainParse(Input, Res),
     Res == 1,
     makeTree2(Input, Answer),
+    treeToString(Answer, Answer2),
     open(Output,write,Stream),
-    write(Stream, Answer),
+    write(Stream, Answer2),
     close(Stream).
 
 
@@ -66,19 +67,22 @@ makeTree2(Input, Tree) :- % dont forget to revert Tree to Answ
     tasks(Tasks),
     maxBound(Max),
     makeTree3([FPA, FM, TNT, MP, TNP], [[], Max], [[], 0], Tasks, Tree).
+
     % treeToString(Tree, Score, Answer). % answer = Solution H G F E D C B A; Quality: 800
     
 % param: ([constraint lists], [[prev tree], prev score], [[curr tree], curr score], [remaining tasks], return)   
 
 % line 31 MTree.hs
-makeTree3(_, Prev, _, T, Ans) :-
+makeTree3(_, Prev, Curr, T, Ans) :-
     length(T, Length),
     Length == 0,
-    Ans = Prev.
+    Ans = Prev,
+    write(Prev), write("    "), write(Curr), write("    "), write(T), write("   "), write(Length), write("\n").
+
 
 % line 33 MTree.hs, checking if task already in use
 makeTree3(Aids, Prev, Curr, [T|Ts], Ans) :-
-    write(Prev), write("    "), write(Curr), write(T), write("\n"), 
+    write(Prev), write("    "), write(Curr), write("    "), write([T|Ts]), write("\n"), 
     nth0(0, Curr, CPath),
     member(T, CPath),
     makeTree3(Aids, Prev, Curr, Ts, Ans).
@@ -127,11 +131,10 @@ makeTree3(Aids, Prev, Curr, [T|_], Ans) :-
     Length >= 8,
     Pen2 is Pen + CScore,
     Pen2 >= PScore,
-    Ans = [CPath2, CScore].
+    Ans = Prev.
 
 % line 38 MTree.hs
 makeTree3(Aids, Prev, Curr, [T|Ts], Ans) :-
-% snd (makeTree2 aids prev (((fst curr)++[x]), ((snd curr) + doTests ((fst curr)++[x]) aids)) tasks) < (snd prev)
     nth0(0, Curr, CPath),
     nth0(1, Curr, CScore),
     nth0(1, Prev, PScore),
@@ -142,8 +145,22 @@ makeTree3(Aids, Prev, Curr, [T|Ts], Ans) :-
     makeTree3(Aids, Prev, [CPath2, Pen2], Tasks, Ans1),
     nth0(1, Ans1, AScore),
     AScore < PScore,
+    AScore > 0,
     makeTree3(Aids, Ans1, Curr, Ts, Ans).
-    % makeTree2 aids (makeTree2 aids prev (((fst curr)++[x]), ((snd curr) + doTests ((fst curr)++[x]) aids)) tasks) curr xs
+
+makeTree3(Aids, Prev, Curr, [T|Ts], Ans) :-
+    nth0(0, Curr, CPath),
+    nth0(1, Curr, CScore),
+    nth0(1, Prev, PScore),
+    appendElem(CPath, T, CPath2),
+    doTests(CPath2, Aids, Pen),
+    Pen2 is Pen + CScore,
+    tasks(Tasks),
+    makeTree3(Aids, Prev, [CPath2, Pen2], Tasks, Ans1),
+    nth0(1, Ans1, AScore),
+    AScore < PScore,
+    AScore < 0,
+    makeTree3(Aids, Prev, Curr, Ts, Ans).
 
 % line 39 MTree.hs
 makeTree3(Aids, Prev, Curr, [T|Ts], Ans) :-
@@ -257,8 +274,42 @@ doTests(Path, Cnst, Pen) :-
     Pen is P1 + P2.
     
 % Tree to string
-% treeToString
+treeToString(Input, Output) :- 
+    nth0(0, Input, CPath),
+    nth0(1, Input, CScore),
+    CScore < 0,
+    Output = 'No valid solution possible!'.
 
+treeToString(Input, Output) :- 
+    nth0(0, Input, CPath),
+    nth0(1, Input, CScore),
+    nth1(1, CPath, T1),
+    nth1(2, CPath, T2),
+    nth1(3, CPath, T3),
+    nth1(4, CPath, T4),
+    nth1(5, CPath, T5),
+    nth1(6, CPath, T6),
+    nth1(7, CPath, T7),
+    nth1(8, CPath, T8),
+    CScore >= 0,
+    atom_concat('Solution ', T1, S1),
+    atom_concat(S1, ' ', S2),
+    atom_concat(S2, T2, S3),
+    atom_concat(S3, ' ', S4),
+    atom_concat(S4, T3, S5),
+    atom_concat(S5, ' ', S6),
+    atom_concat(S6, T4, S7),
+    atom_concat(S7, ' ', S8),
+    atom_concat(S8, T5, S9),
+    atom_concat(S9, ' ', S10),
+    atom_concat(S10, T6, S11),
+    atom_concat(S11, ' ', S12),
+    atom_concat(S12, T7, S13),
+    atom_concat(S13, ' ', S14),
+    atom_concat(S14, T8, S15),
+    atom_concat(S15, '; Quality: ', S16),
+    atom_concat(S16, CScore, S17),
+    Output = S17.
  
 testTests(File, Path, Pen) :-
     readMyFile(File, Flines),
@@ -270,3 +321,4 @@ testTests(File, Path, Pen) :-
     parseMP(Nlines, 0, _, X4),
     parseTNP(Nlines, 0, _, X5),
     doTests(Path, [X, X2, X3, X4, X5], Pen).
+
