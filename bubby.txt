@@ -1,6 +1,9 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 Solution A B C D E F H G; Quality: 36
 =======
+=======
+>>>>>>> parent of 77001a7 (finished makeTree)
 Name:
 toonearpen1
 
@@ -32,4 +35,7 @@ too-near penalities
 (F,H,7)
 (H,G,9)
 (F,G,8)
+<<<<<<< HEAD
+>>>>>>> parent of 77001a7 (finished makeTree)
+=======
 >>>>>>> parent of 77001a7 (finished makeTree)

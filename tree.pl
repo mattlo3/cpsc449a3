@@ -48,8 +48,12 @@ makeTree(Input, Output) :-
     mainParse(Input, Res),
     Res == 1,
 <<<<<<< HEAD
+<<<<<<< HEAD
     makeTree2(Input, Answer),
     treeToString(Answer, Answer2),
+=======
+    % makeTree2(Input, Answer),
+>>>>>>> parent of 77001a7 (finished makeTree)
 =======
     % makeTree2(Input, Answer),
 >>>>>>> parent of 77001a7 (finished makeTree)
@@ -69,6 +73,7 @@ makeTree2(Input, Answer) :-
     parseMP(Nlines, 0, _, MP),
     parseTNP(Nlines, 0, _, TNP),
     tasks(Tasks),
+<<<<<<< HEAD
 <<<<<<< HEAD
     maxBound(Max),
     makeTree3([FPA, FM, TNT, MP, TNP], [[], Max], [[], 0], Tasks, Tree).
@@ -160,6 +165,20 @@ makeTree3(Aids, Prev, Curr, [T|Ts], Ans) :-
     makeTree3(Aids, Prev, Curr, Ts, Ans).
     %= makeTree2 aids prev curr xs
 =======
+% makeTree3(Aids, Prev, Curr, [T|Tx], Ans) :-
+>>>>>>> parent of 77001a7 (finished makeTree)
+=======
+    makeTree3([FPA, FM, TNT, MP, TNP], 0, Score, [], Tree, Tasks),
+    treeToString(Tree, Score, Answer). % answer = Solution H G F E D C B A; Quality: 800
+    
+% param: ([constraint lists], [[prev tree], prev score], [[curr tree], curr score], [remaining tasks], return)   
+% if current task is already used, test next task
+makeTree3(Aids, Prev, Curr, [T|Tx], Ans) :-
+    nth0(0, Curr, CPath),
+    member(T, CPath),
+    makeTree3(Aids, Prev, Curr, Tx, Ans).
+
+
 % makeTree3(Aids, Prev, Curr, [T|Tx], Ans) :-
 >>>>>>> parent of 77001a7 (finished makeTree)
     
@@ -259,12 +278,15 @@ doTests(Path, Cnst, Pen) :-
 
     
 <<<<<<< HEAD
+<<<<<<< HEAD
 % Tree to string
 treeToString(Input, Output) :- 
     nth0(0, Input, CPath),
     nth0(1, Input, CScore),
     CScore < 0,
     Output = 'No valid solution possible!'.
+=======
+>>>>>>> parent of 77001a7 (finished makeTree)
 =======
 >>>>>>> parent of 77001a7 (finished makeTree)
 
@@ -301,6 +323,7 @@ treeToString(Input, Output) :-
  
 testTests(File, Path, Pen) :-
 <<<<<<< HEAD
+<<<<<<< HEAD
     readMyFile(File, Flines),
     delTrailingSpaces(Flines, [], Flines2),
     delMember('', Flines2, Nlines),
@@ -311,6 +334,9 @@ testTests(File, Path, Pen) :-
     parseTNP(Nlines, 0, _, X5),
     doTests(Path, [X, X2, X3, X4, X5], Pen).
 
+=======
+    
+>>>>>>> parent of 77001a7 (finished makeTree)
 =======
     
 >>>>>>> parent of 77001a7 (finished makeTree)
