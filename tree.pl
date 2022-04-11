@@ -198,6 +198,7 @@ doTests(Path, Cnst, Pen) :- %
     forcedPartial(MT, FPA, Bool),
     Bool == 0,
     minBound(Pen).
+    
 
 % line 44 MTree.hs
 doTests(Path, Cnst, Pen) :-

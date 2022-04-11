@@ -1,0 +1,24 @@
+Name:
+machpen1
+
+forced partial assignment:
+
+
+
+forbidden machine:
+(6,F)
+
+too-near tasks:
+
+machine penalties:
+1 1 1 1 1 1 1 1
+1 1 1 1 1 1 1 1
+1 1 1 1 1 1 1 1
+1 1 1 1 1 1 1 1
+1 1 1 1 1 1 1 1
+1 1 1 1 1 1 1 1
+1 1 1 1 1 1 10 20
+1 1 1 1 1 1 10 30
+
+too-near penalities
+
